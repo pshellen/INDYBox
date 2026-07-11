@@ -390,6 +390,28 @@ local function layouter(rotation, num_shows)
     end
 end
 
+local function visible_movie_badges(badges)
+    local visible = {}
+
+    for _, badge in ipairs(badges or {}) do
+        local text = tostring(badge or "")
+
+        -- Keep the badge information, but remove auditorium labels
+        -- such as "Screen 5", "Screen 9", etc.
+        text = text:gsub("[Ss][Cc][Rr][Ee][Ee][Nn]%s*%d+", "")
+
+        -- Clean up extra whitespace left behind.
+        text = text:gsub("%s+", " ")
+        text = text:match("^%s*(.-)%s*$")
+
+        if text ~= "" then
+            visible[#visible + 1] = text
+        end
+    end
+
+    return visible
+end
+
 local function show_bload()
     local cfg = bload.get_display_cfg()
     local movies, page_size = bload.get_paged_movies()
@@ -435,22 +457,38 @@ local function show_bload()
             end
 
             -- info line (rating + optional movie badges)
+            -- Screen numbers are removed, but all other badge text remains.
+            local movie_badges = visible_movie_badges(movie.badges)
+
             local info_h = 50
-            if cfg.display_badges and movie.badges and #movie.badges > 0 then
+            if cfg.display_badges and #movie_badges > 0 then
                 info_h = 72
             end
+
             infofill:draw(x+1, y+split, x+cell_w-1, y+split+info_h)
+
             local width = res.font:width(movie.mpaa, 30)
             local info_x = x + (cell_w-width) / 2
             res.font:write(info_x, y+split+10, movie.mpaa, 30, 0,0,0,1)
-            if cfg.display_badges and movie.badges and #movie.badges > 0 then
-                local badge_text = table.concat(movie.badges, "  ")
+
+            if cfg.display_badges and #movie_badges > 0 then
+                local badge_text = table.concat(movie_badges, "  ")
                 local badge_size = 16
-                while badge_size > 10 and res.font:width(badge_text, badge_size) > cell_w - 10 do
+
+                while badge_size > 10 and
+                      res.font:width(badge_text, badge_size) > cell_w - 10 do
                     badge_size = badge_size - 1
                 end
+
                 local badge_w = res.font:width(badge_text, badge_size)
-                res.font:write(x + (cell_w-badge_w)/2, y+split+38, badge_text, badge_size, 0,0,0,1)
+
+                res.font:write(
+                    x + (cell_w-badge_w)/2,
+                    y+split+38,
+                    badge_text,
+                    badge_size,
+                    0,0,0,1
+                )
             end
 
             -- showtime grid

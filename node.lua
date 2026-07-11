@@ -18,6 +18,7 @@ local bload_threshold = 3600
 local bload_fallback = resource.load_image "empty.png"
 local screen_idx, screen_cnt
 local logo
+local black = resource.create_colored_texture(0, 0, 0, 1)
 
 local function mipmapped_image(filename)
     return resource.load_image(filename, true)
@@ -602,6 +603,7 @@ end
 
 function node.render()
     gl.clear(0,0,0,1)
+    black:draw(0, 0, WIDTH, HEIGHT)
     st()
 
     local movies = bload.get_paged_movies()

@@ -36,7 +36,7 @@ local res = util.resource_loader({
     "showtime.png";
 }, {})
 
-local bgfill = resource.create_colored_texture(.5,.5,.5,1)
+local bgfill = resource.create_colored_texture(0,0,0,1)
 local fgfill = resource.create_colored_texture(.1,.1,.1,1)
 local infofill = resource.create_colored_texture(1,1,1,1)
 
@@ -400,7 +400,7 @@ local function show_bload()
     local cell_h = HEIGHT / rows
     local now = current_offset()
 
-    for idx = 1, #movies+1 do
+    for idx = 1, cols * rows do
         local x = (idx - 1)%cols * (cell_w)
         local y = math.floor((idx - 1)/cols) * cell_h
         local movie = movies[idx]
@@ -414,9 +414,10 @@ local function show_bload()
                 image = loaded_images[movie.image]
                 if not image then
                     print("loading image", movie.image)
-                    loaded_images[movie.image] = resource.load_image{
+                    image = resource.load_image{
                         file = file:copy(),
                     }
+                    loaded_images[movie.image] = image
                 end
             end
 
@@ -430,7 +431,7 @@ local function show_bload()
                     width = res.font:width(movie.name, size)
                 end
                 local name_x = x + (cell_w-width) / 2
-                res.font:write(name_x, y+(split-size)/2, movie.name, size, 0,0,0,1)
+                res.font:write(name_x, y+(split-size)/2, movie.name, size, 1,1,1,1)
             end
 
             -- info line (rating + optional movie badges)

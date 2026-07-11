@@ -494,6 +494,17 @@ local function show_bload()
             -- showtime grid
             local times_y = y + split + info_h + 1
             local times_h = cell_h - split - info_h - 2
+
+            -- Fill the entire showtime area first. This prevents unused
+            -- portions of the grid from showing the background behind
+            -- the movie cell when there are only a few showtimes.
+            fgfill:draw(
+                x + 1,
+                times_y,
+                x + cell_w - 1,
+                y + cell_h - 1
+            )
+
             local time_cols, time_rows
             if #movie.shows <= 1 then
                 time_cols = 1
